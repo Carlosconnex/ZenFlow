@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/top_level.css') }}" />
+    <title>{{ board.title }} - ZenFlow</title>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo"><b>{{ name }}</b> / {{ board.title }}</div>
+        <a href="/" style="color: white; margin-left: 20px;">← Back to Dashboard</a>
+    </header>
+
+    <main class="kanban-container" style="display: flex; overflow-x: auto; padding: 20px; gap: 20px;">
+        {% for list in board.lists %}
+        <section class="column" style="background: #ebecf0; border-radius: 8px; width: 280px; padding: 10px; flex-shrink: 0;">
+            <h3>{{ list.title }}</h3>
+            
+            <div class="cards">
+                {% for card in list.cards %}
+                <div class="task-card">
+                    <p>{{ card.content }}</p>
+                    <div class="card-footer">
+                        <span class="badge">E: {{ card.energy_level }}</span>
+                        
+                        <div class="move-menu" style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 5px;">
+                            <small style="display: block; color: #666; margin-bottom: 3px;">Move to:</small>
+                            {% for other_list in board.lists %}
+                                {% if other_list.id != list.id %}
+                                    <a href="{{ url_for('main.move_card', card_id=card.id, new_list_id=other_list.id) }}" 
+                                       style="font-size: 0.75rem; text-decoration: none; color: var(--accent-warm); font-weight: bold; margin-right: 8px;">
+                                       → {{ other_list.title }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %} </div>
+
+            <form action="{{ url_for('main.add_card', list_id=list.id) }}" method="POST" style="margin-top: 10px;">
+                <input type="text" name="content" placeholder="+ Add a card" required style="width: 100%; padding: 5px;" />
+            </form>
+        </section>
+        {% endfor %} <section class="add-list" style="width: 280px; flex-shrink: 0;">
+            <form action="{{ url_for('main.add_list', board_id=board.id) }}" method="POST">
+                <input type="text" name="title" placeholder="+ Add another list" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px dashed #ccc;" />
+            </form>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,199 @@
+/* --- Mid-Modern Stim-Friendly Theme --- */
+:root {
+  /* Soft, earthy palette */
+  --bg-color: #f2ede4;      /* Warm off-white/linen */
+  --nav-bg: #4a6670;        /* Muted slate teal */
+  --column-bg: rgba(216, 222, 212, 0.7); /* Translucent sage green */
+  --card-bg: rgba(255, 255, 255, 0.65);   /* Translucent white for glass effect */
+  --text-main: #3c3c3c;
+  --accent-warm: #d98e73;   /* Muted terracotta */
+  --accent-gold: #e8b971;   /* Soft mustard/ochre */
+  --radius: 20px;           /* Bold rounded corners */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  /* Optional: Subtle organic background pattern */
+  background-image: radial-gradient(#dcd7cc 1px, transparent 1px);
+  background-size: 30px 30px;
+  color: var(--text-main);
+  min-height: 100vh;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 5%;
+  background: var(--nav-bg);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-bottom: 3px solid var(--accent-gold);
+}
+
+.logo b {
+  font-size: 1.5rem;
+  letter-spacing: -1px;
+}
+
+.navbar a {
+  color: #f2ede4;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 20px;
+  transition: color 0.3s;
+}
+
+.navbar a:hover {
+  color: var(--accent-gold);
+}
+
+/* --- KANBAN LAYOUT --- */
+.kanban-container {
+  display: flex;
+  overflow-x: auto; /* Enables horizontal scrolling for lists */
+  padding: 40px;
+  gap: 24px;
+  align-items: flex-start;
+  height: calc(100vh - 80px);
+}
+
+/* Custom Scrollbar for the horizontal board */
+.kanban-container::-webkit-scrollbar {
+  height: 10px;
+}
+.kanban-container::-webkit-scrollbar-thumb {
+  background: var(--nav-bg);
+  border-radius: 10px;
+}
+
+/* --- COLUMNS (Lists) --- */
+.column {
+  background: var(--column-bg);
+  backdrop-filter: blur(10px); /* Frosted glass effect for the list */
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius);
+  width: 320px;
+  min-width: 320px;
+  padding: 20px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+}
+
+.column h3 {
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--nav-bg);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- CARDS --- */
+.task-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px); /* The "Glass" effect */
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  cursor: pointer;
+}
+
+.task-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--accent-gold);
+}
+
+.task-card p {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  color: #1a1a1a; 
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--accent-warm);
+  color: white;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* --- FORMS & INPUTS --- */
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid rgba(74, 102, 112, 0.2); /* Soft slate border */
+  background: rgba(255, 255, 255, 0.8);      /* More opaque for better contrast */
+  color: var(--text-main);                   /* Force dark charcoal text */
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(232, 185, 113, 0.3);
+}
+
+/* Specific fix for "Add List" and "Add Board" inputs */
+.add-list input, 
+.add-board input {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-main) !important; /* Overrides the previous white text rule */
+}
+
+/* Ensure placeholders are visible but distinct */
+input::placeholder {
+  color: rgba(60, 60, 60, 0.5) !important;
+}
+
+.add-list {
+  min-width: 280px;
+}
+
+.add-list input {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-main);
+  border: 2px dashed var(--nav-bg);
+}
+
+.add-list input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+
+.move-menu {
+    opacity: 0.6; /* Keeps it subtle until you hover over the card */
+    transition: opacity 0.3s;
+}
+
+.task-card:hover .move-menu {
+    opacity: 1;
+}
+
+.move-menu a:hover {
+    text-decoration: underline;
+    color: var(--accent-gold);
+}
+

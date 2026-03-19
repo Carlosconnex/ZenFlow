@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ name }} | Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/top_level.css') }}"
+    />
+  </head>
+  <body class="u-bg-app u-text-primary">
+    <div class="u-bg-shape u-bg-shape-a" aria-hidden="true"></div>
+    <div class="u-bg-shape u-bg-shape-b" aria-hidden="true"></div>
+
+    <header class="k-topbar u-glass">
+      <div class="u-row u-gap-sm u-items-center">
+        <div class="k-logo-mark">{{ name[0] if name else 'Z' }}</div>
+        <div>
+          <h1 class="u-text-lg u-font-display">ZenFlow Dashboard</h1>
+          <p class="u-text-sm u-text-muted">Welcome back to your Zen-Space</p>
+        </div>
+      </div>
+      <nav class="u-row u-gap-md u-hide-mobile">
+        <a href="{{ url_for('main.landing') }}" class="u-link is-active">Projects</a>
+        <a href="{{ url_for('main.meadow') }}" class="u-link">The Meadow</a>
+      </nav>
+      <div class="u-chip">v{{ ver }}</div>
+    </header>
+
+    <main class="u-container" style="padding-top: 3rem; max-width: 1200px; margin: 0 auto; padding-inline: 20px;">
+      
+      <section style="margin-bottom: 4rem; display: flex; justify-content: center;">
+        <article class="u-glass" style="padding: 2rem; width: 100%; max-width: 500px; border-radius: var(--radius-lg); text-align: center;">
+          <h2 class="u-text-lg u-font-display" style="margin-bottom: 1rem;">Create New Board</h2>
+          <form action="{{ url_for('main.create_board') }}" method="POST" class="u-column u-gap-sm">
+            <input 
+              type="text" 
+              name="board_name" 
+              placeholder="e.g. School Tasks, House Tasks..." 
+              required 
+              style="background: var(--surface-strong); border: 1px solid var(--line); padding: 1rem; border-radius: var(--radius-md); color: var(--text-primary); width: 100%;"
+            >
+            <button type="submit" class="u-pill" style="background: var(--brand); color: white; border: none; cursor: pointer; padding: 0.8rem 1.5rem; font-weight: bold; width: 100%;">
+              Add Board +
+            </button>
+          </form>
+        </article>
+      </section>
+
+      <h2 class="u-text-lg u-font-display" style="margin-bottom: 1.5rem;">Active Boards</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; padding-bottom: 5rem;">
+        {% for board in boards %}
+          <article class="u-glass k-card-hover" style="padding: 1.5rem; border-radius: var(--radius-md); transition: transform 0.2s ease; height: 100%; border: 1px solid var(--line); display: flex; flex-direction: column;">
+            
+            <div class="u-row u-justify-between u-items-center">
+              <div class="u-row u-gap-sm u-items-center" style="flex: 1; min-width: 0;">
+                <a href="{{ url_for('main.board_view', board_id=board.id) }}" class="board-name-link" style="text-decoration: none; flex: 1; min-width: 0;" data-board-id="{{ board.id }}">
+                  <h3 class="u-text-md u-font-display board-name-display" style="color: var(--brand); margin: 0;">{{ board.name }}</h3>
+                </a>
+                <button type="button" class="k-edit-btn board-edit-btn" aria-label="Edit board name" title="Edit board name" data-board-id="{{ board.id }}" data-board-name="{{ board.name }}">✏️</button>
+                <form class="board-edit-form u-row u-gap-sm u-items-center" style="display: none; flex: 1; min-width: 0;" data-board-id="{{ board.id }}">
+                  <input type="text" class="board-name-input u-input" value="{{ board.name }}" style="flex: 1; min-width: 0;" />
+                  <button type="submit" class="u-btn u-btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Save</button>
+                  <button type="button" class="u-btn board-edit-cancel" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">Cancel</button>
+                </form>
+              </div>
+              <span class="u-pill" style="font-size: 0.7rem;">{{ board.total }} Tasks</span>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid var(--line); margin: 1.5rem 0 1rem 0;">
+            
+            <div class="u-row u-gap-md" style="font-size: 0.8rem; margin-bottom: 1.5rem;">
+              <span class="u-text-muted"><b>{{ board.todo }}</b> To Do</span>
+              <span class="u-text-muted"><b>{{ board.doing }}</b> Doing</span>
+              <span class="u-text-muted" style="color: var(--done);"><b>{{ board.done }}</b> Done</span>
+            </div>
+
+            <div class="u-row u-justify-between u-items-center" style="margin-top: auto;">
+              <a href="{{ url_for('main.board_view', board_id=board.id) }}" class="u-btn u-btn-primary" style="padding: 0.5rem 1rem; font-size: 0.75rem;">
+                Open Board
+              </a>
+              <span class="u-row u-gap-sm">
+                <button type="button" class="u-card-link meadow-archive-board" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: 0.75rem; font-weight: 700; color: var(--text-muted);" data-board-id="{{ board.id }}" title="Send to The Meadow">To Meadow</button>
+                <form action="{{ url_for('main.delete_board', board_id=board.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to erase this entire board?');">
+                  <button type="submit" class="u-card-link-danger" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit;">
+                    Erase Board
+                  </button>
+                </form>
+              </span>
+            </div>
+
+          </article>
+        {% endfor %}
+      </div>
+    </main>
+
+    <style>
+      .k-card-hover:hover {
+        transform: translateY(-5px);
+        border-color: var(--brand) !important;
+        box-shadow: var(--shadow-lg);
+      }
+      /* Ensure the Erase link looks consistent with your style */
+      .u-card-link-danger {
+        color: #b91c1c; /* Maps to --danger */
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .u-card-link-danger:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <script>
+      document.querySelectorAll('.board-edit-btn').forEach(btn => {
+        const boardId = btn.dataset.boardId;
+        const card = btn.closest('article');
+        const nameLink = card.querySelector('.board-name-link');
+        const nameDisplay = card.querySelector('.board-name-display');
+        const form = card.querySelector('.board-edit-form');
+        const input = card.querySelector('.board-name-input');
+        const cancelBtn = card.querySelector('.board-edit-cancel');
+
+        function showEdit() {
+          nameLink.style.display = 'none';
+          btn.style.display = 'none';
+          form.style.display = 'flex';
+          input.value = nameDisplay.textContent;
+          input.focus();
+        }
+        function hideEdit() {
+          form.style.display = 'none';
+          nameLink.style.display = '';
+          btn.style.display = '';
+        }
+
+        btn.addEventListener('click', showEdit);
+        cancelBtn.addEventListener('click', hideEdit);
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = input.value.trim();
+          if (!name) return;
+          try {
+            const res = await fetch(`/api/boards/${boardId}/update`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+              nameDisplay.textContent = data.name;
+              btn.dataset.boardName = data.name;
+              hideEdit();
+            } else {
+              alert(data.error || 'Failed to update');
+            }
+          } catch {
+            alert('Failed to update board name');
+          }
+        });
+      });
+      document.querySelectorAll('.meadow-archive-board').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const boardId = btn.dataset.boardId;
+          try {
+            const res = await fetch(`/api/boards/${boardId}/archive`, { method: 'POST' });
+            const data = await res.json();
+            if (data.ok) window.location.reload();
+          } catch { alert('Could not send to Meadow.'); }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,21 +1,33 @@
-from . import db
-from datetime import datetime
+from . import db  # This refers to the db initialized in your __init__.py
 
-class Board(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    # Relationship: One Board -> Many Lists
-    lists = db.relationship('List', backref='board', lazy=True, cascade="all, delete-orphan")
 
-class List(db.Model):
+class ProjectBoard(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    board_id = db.Column(db.Integer, db.ForeignKey('board.id'), nullable=False)
-    # Relationship: One List -> Many Cards
-    cards = db.relationship('Card', backref='list', lazy=True, cascade="all, delete-orphan")
+    name = db.Column(db.String(120), nullable=False, unique=True)
+    archived = db.Column(db.Boolean, default=False, nullable=False)
+    tasks = db.relationship(
+        'Task',
+        backref='board',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
 
-class Card(db.Model):
+
+class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(500), nullable=False)
-    energy_level = db.Column(db.Integer, default=1)
-    list_id = db.Column(db.Integer, db.ForeignKey('list.id'), nullable=False)
+    content = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, default='')
+    status = db.Column(db.String(20), default='todo')  # todo, doing, done
+    energy_level = db.Column(db.Integer, default=1)    # 1=Easy, 2=Medium, 3=Deep Work
+    board_id = db.Column(db.Integer, db.ForeignKey('project_board.id'), nullable=False)
+    archived = db.Column(db.Boolean, default=False, nullable=False)
+
+# from flask_sqlalchemy import SQLAlchemy
+
+# db = SQLAlchemy()
+
+# class Task(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     content = db.Column(db.String(200), nullable=False)
+#     status = db.Column(db.String(20), default='todo') # todo, doing, done
+#     energy_level = db.Column(db.Integer, default=1) # 1=Easy, 2=Medium, 3=Deep Work

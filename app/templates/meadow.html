@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ name }} | The Meadow</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles/top_level.css') }}"
+    />
+  </head>
+  <body class="u-bg-app u-text-primary">
+    <div class="u-bg-shape u-bg-shape-a" aria-hidden="true"></div>
+    <div class="u-bg-shape u-bg-shape-b" aria-hidden="true"></div>
+
+    <header class="k-topbar u-glass">
+      <div class="u-row u-gap-sm u-items-center">
+        <div class="k-logo-mark">{{ name[0] if name else 'Z' }}</div>
+        <div>
+          <h1 class="u-text-lg u-font-display">The Meadow</h1>
+          <p class="u-text-sm u-text-muted">Archive — where finished cards and old boards rest</p>
+        </div>
+      </div>
+
+      <nav class="u-row u-gap-md u-hide-mobile">
+        <a href="{{ url_for('main.landing') }}" class="u-link">Projects</a>
+        <a href="{{ url_for('main.meadow') }}" class="u-link is-active">The Meadow</a>
+      </nav>
+
+      <div class="u-chip">v{{ ver }}</div>
+    </header>
+
+    <main class="u-container k-meadow-main">
+      {% if not archived_tasks and not archived_boards %}
+        <section class="k-meadow-empty u-glass u-fade-in">
+          <p class="k-meadow-empty-icon" aria-hidden="true">🌾</p>
+          <h2 class="u-text-lg u-font-display">The Meadow is peaceful</h2>
+          <p class="u-text-muted">No archived cards or boards yet. Send done tasks here from a board, or archive a board from the dashboard.</p>
+          <a href="{{ url_for('main.landing') }}" class="u-btn u-btn-primary">Back to Projects</a>
+        </section>
+      {% else %}
+        {% if archived_tasks %}
+          <section class="k-meadow-section u-fade-in">
+            <h2 class="u-text-lg u-font-display k-meadow-heading">Archived cards</h2>
+            <ul class="k-meadow-list">
+              {% for task in archived_tasks %}
+                <li class="u-glass k-meadow-card" data-task-id="{{ task.id }}">
+                  <div class="k-meadow-card-body">
+                    <p class="k-meadow-card-title">{{ task.content }}</p>
+                    <span class="u-energy u-energy-{{ task.energy_level }}">
+                      {% if task.energy_level == 1 %}Easy{% elif task.energy_level == 2 %}Medium{% else %}Deep Work{% endif %}
+                    </span>
+                    <span class="u-text-muted u-text-sm">from {{ task.board.name if task.board else 'Board' }}</span>
+                  </div>
+                  <div class="k-meadow-card-actions">
+                    <a href="{{ url_for('main.board_view', board_id=task.board_id) }}" class="u-btn u-btn-primary meadow-restore-task" data-task-id="{{ task.id }}" data-board-id="{{ task.board_id }}">Restore to board</a>
+                    <form action="{{ url_for('main.delete_task', board_id=task.board_id, id=task.id) }}" method="POST" class="k-meadow-delete-form" onsubmit="return confirm('Permanently delete this card?');">
+                      <button type="submit" class="u-card-link u-card-link-danger" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit;">Delete</button>
+                    </form>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+        {% endif %}
+
+        {% if archived_boards %}
+          <section class="k-meadow-section u-fade-in">
+            <h2 class="u-text-lg u-font-display k-meadow-heading">Archived boards</h2>
+            <div class="k-meadow-boards">
+              {% for board in archived_boards %}
+                <article class="u-glass k-meadow-board-card" data-board-id="{{ board.id }}">
+                  <h3 class="u-text-md u-font-display" style="color: var(--brand); margin: 0 0 0.5rem 0;">{{ board.name }}</h3>
+                  <p class="u-text-sm u-text-muted" style="margin: 0 0 1rem 0;">{{ board.tasks|length }} task(s)</p>
+                  <div class="u-row u-gap-sm">
+                    <button type="button" class="u-btn u-btn-primary meadow-restore-board" data-board-id="{{ board.id }}">Restore to dashboard</button>
+                    <form action="{{ url_for('main.delete_board', board_id=board.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Permanently delete this board and all its tasks?');">
+                      <button type="submit" class="u-card-link u-card-link-danger" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit;">Delete</button>
+                    </form>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+      {% endif %}
+    </main>
+
+    <script>
+      document.querySelectorAll('.meadow-restore-task').forEach(link => {
+        link.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const taskId = link.dataset.taskId;
+          const boardId = link.dataset.boardId;
+          try {
+            const res = await fetch(`/api/tasks/${taskId}/unarchive`, { method: 'POST' });
+            const data = await res.json();
+            if (data.ok) window.location.href = `/boards/${boardId}`;
+          } catch { alert('Could not restore.'); }
+        });
+      });
+      document.querySelectorAll('.meadow-restore-board').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const boardId = btn.dataset.boardId;
+          try {
+            const res = await fetch(`/api/boards/${boardId}/unarchive`, { method: 'POST' });
+            const data = await res.json();
+            if (data.ok) window.location.reload();
+          } catch { alert('Could not restore.'); }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -51,13 +51,12 @@ source venv/bin/activate
 
 ```bash
 pip install Flask
-pip install Flask-Migrate
 ```
 
 4. Run the app
 
 ```bash
-python app.py
+python{version_number} app.py
 ```
 
 5. Open the browser and visit: http://127.0.0.1:5000
